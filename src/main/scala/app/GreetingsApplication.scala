@@ -1,58 +1,7 @@
 package scala.app
 
+import scala.app.models.{CashISASavingsAccount, Person, SavingsAccount}
 import scala.io.StdIn
-
-
-abstract class BankAccount(accountNumber : String,
-                           val balance: Double) {
-
-  def withdraw(amount: Double) : BankAccount
-
-  def deposit(amount: Double) : BankAccount
-
-}
-
-class SavingsAccount(accountNumber: String,
-                     balance : Double) extends BankAccount(accountNumber,balance) {
-
-  override def deposit(amount: Double): BankAccount = new SavingsAccount(accountNumber, balance + amount)
-
-  override def withdraw(amount: Double): BankAccount = new SavingsAccount(accountNumber, balance - amount)
-
-}
-
-class Person(name : String, age: Int, private val bankAccount: BankAccount) {
-
-  def this(name : String, age : Int) = this(
-    name = name,
-    age = age,
-    bankAccount = new SavingsAccount("123", 0.00)
-  )
-
-  def this(name : String) = this(
-    name = name,
-    age = 0,
-    bankAccount = new SavingsAccount("1234", 0.00)
-  )
-
-  def this(firstName : String,
-           lastName : String) = this(
-    name = s"$firstName $lastName",
-    age = 0,
-    bankAccount = new SavingsAccount("153434", 0.00)
-  )
-
-  private val years : String = if(age == 1) "year" else "years"
-
-  def speak() : String = {
-    if (name == "adam") {
-      "You don't get a hello."
-    } else {
-      s"Hello $name, you are $age $years old. \n You have ${bankAccount.balance} in your account."
-    }
-  }
-
-}
 
 object Prompt {
 
@@ -69,11 +18,33 @@ object GreetingsApplication extends App {
   val age : String = Prompt.ask("How old are you? ")
 
   val p : Person = new Person(name, age.toInt)
+  println(p.speak())
 
   val child = new Person("David")
 
   val p2 = new Person("Adam", "Conder")
 
-  println(p.speak())
+
+  /**
+    * Create a second bank account of type CashISA
+    * Deposit, withdraw and assign to a person
+    */
+  val cashISA = new CashISASavingsAccount("1234566", 0.00, depositThreshold = 300.00)
+  val isaDeposited = cashISA.deposit(1000.00)
+  val withdrawFromISA = isaDeposited.withdraw(200.00)
+  val personWithCashISA = new Person("Loyal customer", 56, withdrawFromISA)
+
+  // Speak the balance of the cash ISA
+  println(personWithCashISA.speak())
+
+
+  /**
+    * Super loyal customer
+    */
+  val superAccount = new CashISASavingsAccount("1234566", 0.00, depositThreshold = 1000.00).deposit(1000.00).withdraw(300.00)
+
+  val superPersonWithISA = new Person("Super Loyal customer", 56, superAccount)
+
+  println(superPersonWithISA.speak())
 
 }
