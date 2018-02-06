@@ -1,3 +1,4 @@
+import scala.io.Source
 //import scala.app.models.Person
 
 val names = List("adam", "daniel", "david", "david")
@@ -150,3 +151,82 @@ val timesTwoThenTimesThree = timesTwo andThen timesThree
 sumAndMultipleBy(numbers, timesTwo)
 sumAndMultipleBy(numbers, timesThree)
 sumAndMultipleBy(numbers, timesTwoThenTimesThree)
+
+
+
+class Person(val name : String)
+
+val p1 = new Person("adam")
+val b1 = new BankAccount("12345")
+val q1 = new Quiz("quiz", "quizzie", 0)
+
+val t : (Person, BankAccount, Quiz) = (p1, b1, q1)
+
+t._1
+t._2
+t._3
+
+
+
+trait Pet {
+  val name : String
+}
+
+trait Walking {
+
+  def walk : String
+}
+
+trait DogWalking extends Walking {
+  override def walk = "trot"
+}
+
+trait CatWalking extends Walking {
+  override def walk = "swag"
+}
+
+class Dog(override val name : String) extends Pet
+class Cat(override val name: String) extends Pet
+
+val pets : List[Pet with Walking] = List(
+  new Dog("lassie") with DogWalking,
+  new Cat("anna") with CatWalking
+)
+
+pets.foreach(p => println(p.walk))
+
+
+
+
+
+
+
+
+
+
+
+trait Logging { def log : Boolean }
+
+trait LoggingToFile extends Logging {
+  override def log: Boolean = {
+    val file = Source.fromFile("").getLines()
+    file.nonEmpty
+  }
+}
+abstract class Bank
+/** Without traits we would have to achieve this by defining pointless abstract classes to share behaviours. We overcome this using traits to mix-in behaviours
+  */
+//abstract class BankWithLogging extends Bank
+//abstract class BankWithLoggingToFile extends BankWithLogging
+class SAccount extends Bank with LoggingToFile
+
+trait LoggingToFileEncrypted extends LoggingToFile {
+  override def log = ???
+}
+
+val rb = new SAccount() with LoggingToFileEncrypted
+val rh = new SAccount() with LoggingToFileEncrypted
+
+val acc2 = new SAccount()
+acc2.log
+rb.log
